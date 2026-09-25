@@ -56,7 +56,14 @@ pipeline{
         }
         stage("run tomcat container"){
             steps{
-                sh 'docker run -d -p 80:8080 --name tomcat_cont tomcat_deploy'
+                sh 'docker rm -f tomcat_cont || true'
+                sh 'docker run -d -p 80:8080 --name tomcat_cont --network mynet tomcat_deploy'
+            }
+        }
+        stage("mysql cont run"){
+            steps{
+                sh 'docker rm -f mysql_cont || true'
+                sh 'docker run -d -p 3306:3306 --name mysql_cont -e MYSQL_ROOT_PASSWORD=123 -e MYSQL_DATABASE=accounts --network mynet mysql '
             }
         }
     }
