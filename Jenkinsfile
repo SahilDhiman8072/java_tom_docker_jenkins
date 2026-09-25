@@ -19,6 +19,35 @@ pipeline{
             steps{
                 sh 'mvn install -DskipTests'
             }
+            post{
+                success{
+                    sh 'artifactsArchive artifacts:"target/*.war"'
+                }
+            }
+        }
+        stage("checkstyle"){
+            steps{
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        stage("sonarqube analyzation"){
+            steps{
+                script {
+        def scannerHome = tool 'sonarqube_tool'
+
+        withSonarQubeEnv('sonarqube') {
+            sh """
+                ${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=vprofile \
+                -Dsonar.projectName=vprofile \
+                -Dsonar.sources=src/main/java \
+                -Dsonar.java.binaries=target/classes \
+                -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml \
+                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            """
+        }
+    }
+            }
         }
     }
 }
