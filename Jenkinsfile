@@ -21,7 +21,7 @@ pipeline{
             }
             post{
                 success{
-                    sh 'artifactsArchive artifacts:"target/*.war"'
+                    archiveArtifacts artifacts:'target/*.war'
                 }
             }
         }
