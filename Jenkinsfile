@@ -7,7 +7,7 @@ pipeline{
     stages{
         stage('pull code'){
             steps{
-                git url: 'https://github.com/SahilDhiman8072/java_tom_docker_jenkins.git'
+                git branch:'main', url: 'https://github.com/SahilDhiman8072/java_tom_docker_jenkins.git'
             }
         }
         stage("code test"){
