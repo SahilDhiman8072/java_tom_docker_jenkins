@@ -49,5 +49,15 @@ pipeline{
     }
             }
         }
+        stage("build tomcat image"){
+            steps{
+                sh 'docker build -t tomcat_deploy .'
+            }
+        }
+        stage("run tomcat container"){
+            steps{
+                sh 'docker run -d -p 80:8080 --name tomcat_cont tomcat_deploy'
+            }
+        }
     }
 }
