@@ -1,0 +1,12 @@
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: mem-svc
+spec:
+  selector:
+    app: memcache
+  port:
+  - port: 11211
+    targetPort: 11211
+    nodePort: 30755
+  type: NodePort
