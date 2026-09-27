@@ -4,7 +4,7 @@ pipeline{
         image_name="sahild42770/tomcat-deploy"
         artifact_name="vrofile-v2.war"
         bucket_name="java_project"
-        ec2A_ip="192.168.1.42"
+        ec2A_ip="192.168.14.15"
     }
     stages{
         stage("pull code"){
@@ -21,9 +21,9 @@ pipeline{
             steps{
                 withCredentials([
                     usernamePassword(
-                    credentialsId:"",
-                    usernameVariable:'dockeruser'
-                    passwordVariable:'dockerpass'
+                    credentialsId:"dockerhub",
+                    usernameVariable:"dockeruser"
+                    passwordVariable: "dockerpass"
                     )
                 ]){
                     sh 'echo "$docker_pass" | docker login -u "$docker_user" --password-stdin'
@@ -35,26 +35,9 @@ pipeline{
                 sh 'docker push $image_name:$BUILD_NUMBER'
             }
         }
-        stage("send artifacts to s3"){
-            steps{
-                sh '''
-                echo "running temp container"
-                docker run -d -p 80:8080 --name tomcat_cont $image_name:$BUILD_NUMBER
-
-                docker cp tomcat_cont:/app/target/*.war .
-
-                aws s3 cp $artifact_name s3://$bucket_name
-                '''
-            }
-            post{
-                success{
-                   sh 'aws s3 ls $bucket_name'
-                }
-            }
-        }
         stage("run deployment"){
             steps{
-                sshagent(['ec2A']){
+                sshagent(['k8s_key']){
                     sh '''
                     ssh -o StrictHostKeyChecking=no \
                     ubuntu@$ec2A_ip \
@@ -66,11 +49,13 @@ pipeline{
 
                     ssh -o StrictHostKeyChecking=no \
                     ubuntu@$ec2A_ip \
-                    "cd java_tom_docker_jenkins && kubectl delete -f tomcat-depl -f tomcat-svc || true"
+                    "cd java_tom_docker_jenkins && kubectl delete -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
+                    -f memcache-depl.yml -f mem-svc.yml || true"
 
                     ssh -o StrictHostKeyChecking=no \
                     ubuntu@$ec2A_ip \
-                    "cd java_tom_docker_jenkins && kubectl apply -f tomcat-depl -f tomcat-svc"
+                    "cd java_tom_docker_jenkins && kubectl apply -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
+                    -f memcache-depl.yml -f mem-svc.yml "
                     
                     '''
                 }
