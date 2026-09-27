@@ -1,9 +1,9 @@
 pipeline{
     agent any
     environment{
-        image_name="sahild42770/tomcat-deploy"
-        artifact_name="vrofile-v2.war"
-        bucket_name="java_project"
+        image_name="sahild42770/tomcat-deploy",
+        artifact_name="vrofile-v2.war",
+        bucket_name="java_project",
         ec2A_ip="192.168.14.15"
     }
     stages{
@@ -22,7 +22,7 @@ pipeline{
                 withCredentials([
                     usernamePassword(
                     credentialsId:"dockerhub",
-                    usernameVariable:"dockeruser"
+                    usernameVariable:"dockeruser",
                     passwordVariable: "dockerpass"
                     )
                 ]){
