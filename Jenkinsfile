@@ -49,11 +49,6 @@ pipeline{
 
                     ssh -o StrictHostKeyChecking=no \
                     ubuntu@$ec2A_ip \
-                    "cd java_tom_docker_jenkins && kubectl delete -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
-                    -f memcache-depl.yml -f mem-svc.yml || true"
-
-                    ssh -o StrictHostKeyChecking=no \
-                    ubuntu@$ec2A_ip \
                     "cd java_tom_docker_jenkins && kubectl apply -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
                     -f memcache-depl.yml -f mem-svc.yml "
 
