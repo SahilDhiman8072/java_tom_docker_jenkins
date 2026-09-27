@@ -1,9 +1,9 @@
 pipeline{
     agent any
     environment{
-        image_name="sahild42770/tomcat-deploy",
-        artifact_name="vrofile-v2.war",
-        bucket_name="java_project",
+        image_name="sahild42770/tomcat-deploy"
+        artifact_name="vrofile-v2.war"
+        bucket_name="java_project"
         ec2A_ip="192.168.14.15"
     }
     stages{
@@ -14,7 +14,7 @@ pipeline{
         }
         stage("buid image"){
             steps{
-                sh 'docker build -t $image_name:$BUILD_NUMBER'
+                sh 'docker build -t $image_name:$BUILD_NUMBER .'
             }
         }
         stage("docker login"){
@@ -26,7 +26,7 @@ pipeline{
                     passwordVariable: "dockerpass"
                     )
                 ]){
-                    sh 'echo "$docker_pass" | docker login -u "$docker_user" --password-stdin'
+                    sh 'echo "$dockerpass" | docker login -u "$dockeruser" --password-stdin'
                 }
             }
         }
@@ -56,6 +56,10 @@ pipeline{
                     ubuntu@$ec2A_ip \
                     "cd java_tom_docker_jenkins && kubectl apply -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
                     -f memcache-depl.yml -f mem-svc.yml "
+
+                     ssh -o StrictHostKeyChecking=no ubuntu@$ec2A_ip \
+                    "kubectl set image deployment/tomcat-deployment \
+                    tomcat-cont=$image_name:$BUILD_NUMBER"
                     
                     '''
                 }
