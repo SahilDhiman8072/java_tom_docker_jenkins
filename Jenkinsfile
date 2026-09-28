@@ -49,7 +49,7 @@ pipeline{
 
                     ssh -o StrictHostKeyChecking=no \
                     vagrant@$ec2A_ip \
-                    "cd java_tom_docker_jenkins && kubectl apply -f tomcat-depl -f tomcat-svc -f rabbitmq-depl.yml -f rabbitmq-svc.yml \
+                    "cd java_tom_docker_jenkins && kubectl apply -f tomcat-deployment -f tomcat-service -f rabbitmq.yml -f rabbimq-svc.yml \
                     -f memcache-depl.yml -f mem-svc.yml "
 
                      ssh -o StrictHostKeyChecking=no vagrant@$ec2A_ip \
