@@ -13,7 +13,7 @@ spec:
       labels: 
         app: memcache
     spec:
-      continers: 
+      containers: 
       - image: memcache
         name: memcache-cont
         ports:
