@@ -4,7 +4,7 @@ pipeline{
         image_name="sahild42770/tomcat-deploy"
         artifact_name="vrofile-v2.war"
         bucket_name="java_project"
-        ec2A_ip="192.168.14.15"
+        ec2A_ip="192.168.1.42"
     }
     stages{
         stage("pull code"){
@@ -37,7 +37,7 @@ pipeline{
         }
         stage("run deployment"){
             steps{
-                sshagent(['k8s_key']){
+                sshagent(['ec2A']){
                     sh '''
                     ssh -o StrictHostKeyChecking=no \
                     vagrant@$ec2A_ip \
