@@ -7,7 +7,7 @@ pipeline{
     }
     environment{
         image_name="sahild42770/tomcat-deploy"
-        artifact_name="vrofile-v2.war"
+        artifact_name="vprofile-v2.war"
         bucket_name="java-project-artifacts-store-vprofile"
         ec2A_ip="192.168.1.36"
         ec2B_ip="192.168.1.53"
@@ -41,7 +41,7 @@ pipeline{
         stage("push artifacts to s3 bucket"){
             steps{
                 sh 'mv target/$artifact_name target/vprofile-v2-${BUILD_NUMBER}.war'
-                sh 'aws s3 cp target/vprofile-v2.war s3://$bucket_name'
+                sh 'aws s3 cp target/vprofile-v2-${BUILD_NUMBER}.war s3://$bucket_name'
             }
             post{
                 success{
