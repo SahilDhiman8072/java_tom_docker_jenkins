@@ -14,10 +14,10 @@ spec:
         app: rabbitmq
     spec:
       containers:
-      - image: rabbitmq
+      - image: sahild42770/rabbitmq
         name: rabbitmq-cont
         ports:
-        - containerPort: 5672
+        - containerPort: 15672
         env:
         - name: "RABBITMQ_DEFAULT_USER"
           value: "test"
