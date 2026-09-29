@@ -5,6 +5,7 @@ pipeline{
         artifact_name="vrofile-v2.war"
         bucket_name="java_project"
         ec2A_ip="192.168.1.36"
+        ec2B_ip="192.168.1.53"
     }
     stages{
         stage("pull code"){
@@ -35,7 +36,7 @@ pipeline{
                 sh 'docker push $image_name:$BUILD_NUMBER'
             }
         }
-        stage("run deployment"){
+        stage("run deployment ec2A"){
             steps{
                 sshagent(['ec2A']){
                     sh '''
@@ -59,23 +60,23 @@ pipeline{
                 }
             }
         }
-        stage("run deployment"){
+        stage("run deployment ec2B"){
             steps{
                 sshagent(['ec2A']){
                     sh '''
                     ssh -o StrictHostKeyChecking=no \
-                    ubuntu@$ec2A_ip \
+                    ubuntu@$ec2B_ip \
                     "rm -rf java_tom_docker_jenkins || true"
 
                     ssh -o StrictHostKeyChecking=no \
-                    ubuntu@$ec2A_ip \
+                    ubuntu@$ec2B_ip \
                     "git clone https://github.com/SahilDhiman8072/java_tom_docker_jenkins.git"
 
                     ssh -o StrictHostKeyChecking=no \
-                    ubuntu@$ec2A_ip \
+                    ubuntu@$ec2B_ip \
                     "cd java_tom_docker_jenkins && kubectl apply -f  tomcat-deployment.yml -f tomcat-service.yml -f rabbitmq.yml -f rabbimq-svc.yml -f memcache-depl.yml -f mem-svc.yml "
 
-                     ssh -o StrictHostKeyChecking=no ubuntu@$ec2A_ip \
+                     ssh -o StrictHostKeyChecking=no ubuntu@$ec2B_ip \
                     "kubectl set image deployment/tomcat-deployment \
                     tomcat-cont=$image_name:$BUILD_NUMBER"
                     
