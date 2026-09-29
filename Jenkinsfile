@@ -4,7 +4,7 @@ pipeline{
         image_name="sahild42770/tomcat-deploy"
         artifact_name="vrofile-v2.war"
         bucket_name="java_project"
-        ec2A_ip="192.168.1.42"
+        ec2A_ip="192.168.1.36"
     }
     stages{
         stage("pull code"){
