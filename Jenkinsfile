@@ -38,17 +38,7 @@ pipeline{
                 sh 'mvn checkstyle:checkstyle'
             }
         }
-        stage("push artifacts to s3 bucket"){
-            steps{
-                sh 'mv target/$artifact_name target/vprofile-v2-${BUILD_NUMBER}.war'
-                sh 'aws s3 cp target/vprofile-v2-${BUILD_NUMBER}.war s3://$bucket_name'
-            }
-            post{
-                success{
-                    sh 'aws s3 ls s3://$bucket_name'
-                }
-            }
-        }
+        
         stage("buid image"){
             steps{
                 sh 'docker build -t $image_name:$BUILD_NUMBER .'
@@ -75,6 +65,17 @@ pipeline{
         stage("push to dockerhub"){
             steps{
                 sh 'docker push $image_name:$BUILD_NUMBER'
+            }
+        }
+        stage("push artifacts to s3 bucket"){
+            steps{
+                sh 'mv target/$artifact_name target/vprofile-v2-${BUILD_NUMBER}.war'
+                sh 'aws s3 cp target/vprofile-v2-${BUILD_NUMBER}.war s3://$bucket_name'
+            }
+            post{
+                success{
+                    sh 'aws s3 ls s3://$bucket_name'
+                }
             }
         }
         stage('SonarQube Analysis') {
