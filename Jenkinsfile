@@ -1,5 +1,10 @@
 pipeline{
     agent any
+    tools{
+        jdk 'jdk21'
+        maven 'maven3.9'
+
+    }
     environment{
         image_name="sahild42770/tomcat-deploy"
         artifact_name="vrofile-v2.war"
@@ -79,10 +84,10 @@ pipeline{
         script {
 
             // Step 1: Find SonarScanner installed in Jenkins
-            def scannerHome = tool 'SonarScanner 4.0'
+            def scannerHome = tool 'sonarqube'
 
             // Step 2: Connect Jenkins with SonarQube
-            withSonarQubeEnv('My SonarQube Server') {
+            withSonarQubeEnv('sonarqube') {
 
                 // Step 3: Run SonarScanner
                 sh """
