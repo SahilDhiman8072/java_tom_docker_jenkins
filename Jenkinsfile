@@ -59,5 +59,29 @@ pipeline{
                 }
             }
         }
+        stage("run deployment"){
+            steps{
+                sshagent(['ec2A']){
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no \
+                    ubuntu@$ec2A_ip \
+                    "rm -rf java_tom_docker_jenkins || true"
+
+                    ssh -o StrictHostKeyChecking=no \
+                    ubuntu@$ec2A_ip \
+                    "git clone https://github.com/SahilDhiman8072/java_tom_docker_jenkins.git"
+
+                    ssh -o StrictHostKeyChecking=no \
+                    ubuntu@$ec2A_ip \
+                    "cd java_tom_docker_jenkins && kubectl apply -f  tomcat-deployment.yml -f tomcat-service.yml -f rabbitmq.yml -f rabbimq-svc.yml -f memcache-depl.yml -f mem-svc.yml "
+
+                     ssh -o StrictHostKeyChecking=no ubuntu@$ec2A_ip \
+                    "kubectl set image deployment/tomcat-deployment \
+                    tomcat-cont=$image_name:$BUILD_NUMBER"
+                    
+                    '''
+                }
+            }
+        }
     }
 }
