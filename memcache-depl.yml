@@ -14,7 +14,7 @@ spec:
         app: memcache
     spec:
       containers: 
-      - image: memcache
+      - image: memcached
         name: memcache-cont
         ports:
         - containerPort: 11211
