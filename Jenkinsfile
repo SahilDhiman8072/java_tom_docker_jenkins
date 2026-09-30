@@ -104,8 +104,25 @@ pipeline{
             }
         }
     }
+}       
+        stage("rds .sql file import")
+{
+    steps{
+        withCredentials([
+            usernamePassword(
+                credentialsId: "rds_userpass",
+                usernameVariable: "rds_user",
+                passwordVariable:"rds_pass"
+            )
+        ]){
+            sh '''
+            sudo apt update && sudo apt install mysql-client -y
+             echo "$rds_pass" | mysql -h database-1.c9oq2cyeet3w.ap-south-1.rds.amazonaws.com \
+             -u"$rds_user" --password-stdin accounts < src/main/resources/db_backup.sql
+             '''
+        }
+    }
 }
-
         stage("run deployment ec2A"){
             steps{
                 sshagent(['ec2A']){
