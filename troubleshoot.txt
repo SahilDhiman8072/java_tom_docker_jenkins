@@ -1,0 +1,133 @@
+KUBERNETES DNS ISSUE - TROUBLESHOOTING
+
+Problem:
+--------
+DNS was not working inside the RabbitMQ pod.
+
+Command:
+kubectl exec -it rabbitmq-depl-bdf79ff-8hl8m -- bash
+apt update
+
+Error:
+Temporary failure resolving 'security.ubuntu.com'
+
+
+1. CHECK EC2 INTERNET
+---------------------
+ping -c 4 google.com
+
+Result:
+0% packet loss
+
+Conclusion:
+EC2 internet and DNS were working.
+
+
+2. CHECK KUBERNETES
+-------------------
+kubectl get nodes
+
+Result:
+Node = Ready
+
+kubectl get pods -n kube-system
+
+Result:
+Calico = Running
+CoreDNS = Running
+kube-proxy = Running
+
+
+3. CHECK POD DNS
+----------------
+kubectl exec -it rabbitmq-depl-bdf79ff-8hl8m -- cat /etc/resolv.conf
+
+Result:
+nameserver 10.96.0.10
+
+Conclusion:
+Pod was correctly using Kubernetes DNS.
+
+
+4. TEST INTERNAL DNS
+--------------------
+kubectl exec -it rabbitmq-depl-bdf79ff-8hl8m -- \
+getent hosts kubernetes.default.svc.cluster.local
+
+Result:
+10.96.0.1 kubernetes.default.svc.cluster.local
+
+Conclusion:
+Internal Kubernetes DNS was working.
+
+
+5. CHECK COREDNS LOGS
+---------------------
+kubectl logs -n kube-system -l k8s-app=kube-dns
+
+Important error:
+read udp 192.168.89.x -> 192.168.1.2:53: i/o timeout
+
+Conclusion:
+CoreDNS could not reach the AWS VPC DNS resolver.
+
+
+6. CHECK AWS DNS
+----------------
+resolvectl status
+
+Result:
+DNS Server = 192.168.1.2
+
+EC2 could resolve DNS, so AWS DNS itself was working.
+
+
+7. FIND ROOT CAUSE
+------------------
+kubectl get ippool -o yaml
+
+Found:
+cidr: 192.168.0.0/16
+natOutgoing: true
+
+AWS VPC:
+192.168.0.0/16
+
+Calico Pod Network:
+192.168.0.0/16
+
+ROOT CAUSE:
+-----------
+CIDR overlap between AWS VPC and Kubernetes Calico Pod network.
+
+This caused routing problems when CoreDNS tried to reach
+the AWS DNS server (192.168.1.2).
+
+
+8. FIX
+-------
+Recreated the single-node Kubernetes cluster with a
+non-overlapping Pod CIDR:
+
+10.244.0.0/16
+
+AWS VPC:
+192.168.0.0/16
+
+Kubernetes Pods:
+10.244.0.0/16
+
+
+9. RESULT
+---------
+Pod DNS resolution started working.
+
+apt update = SUCCESS
+google.com DNS resolution = SUCCESS
+
+
+ROOT CAUSE:
+CIDR overlap between AWS VPC and Calico Pod network.
+
+FIX:
+Use a non-overlapping Kubernetes Pod CIDR.
