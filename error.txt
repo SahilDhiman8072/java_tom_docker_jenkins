@@ -1,0 +1,13 @@
+"I had a DNS resolution issue inside my Kubernetes pod. First, I confirmed that the EC2 instance itself had internet connectivity.
+ Then I checked the Kubernetes node, CoreDNS pods, and kube-dns service, and all of them were healthy. 
+ I checked the pod's /etc/resolv.conf and confirmed it was using the Kubernetes DNS service. Internal Kubernetes DNS resolution
+ was working, but external DNS resolution was failing.
+
+ I then checked the CoreDNS logs and found that CoreDNS requests to the AWS DNS resolver at 192.168.1.2:53 were timing out. 
+ I checked the Calico IPPool and discovered that Calico was configured with 192.168.0.0/16, which overlapped with 
+ my AWS VPC CIDR. This caused a routing conflict between the pod network and the VPC network.
+
+ Because this was my lab cluster, I recreated the cluster using a non-overlapping Pod CIDR, 10.244.0.0/16. 
+ After that, pod DNS resolution started working normally."
+
+ "The root cause was an overlapping CIDR between my AWS VPC network and the Calico Kubernetes Pod network."
