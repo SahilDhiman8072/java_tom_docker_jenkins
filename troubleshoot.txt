@@ -130,4 +130,4 @@ ROOT CAUSE:
 CIDR overlap between AWS VPC and Calico Pod network.
 
 FIX:
-Use a non-overlapping Kubernetes Pod CIDR.
+Use a non-overlapping Kubernetes Pod CIDR..
