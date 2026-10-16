@@ -8,6 +8,6 @@
  my AWS VPC CIDR. This caused a routing conflict between the pod network and the VPC network.
 
  Because this was my lab cluster, I recreated the cluster using a non-overlapping Pod CIDR, 10.244.0.0/16. 
- After that, pod DNS resolution started working normally."
+ After that pod DNS resolution started working normally."
 
  "The root cause was an overlapping CIDR between my AWS VPC network and the Calico Kubernetes Pod network."
